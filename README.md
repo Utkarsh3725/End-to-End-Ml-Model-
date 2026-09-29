@@ -1,4 +1,4 @@
-# End-to-End Machine Learning
+# End to End Machine Learning
 
 ## Project Description  
 
