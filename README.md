@@ -144,11 +144,14 @@ Web service in this project focuses on classifying Iris flowers using machine le
 ## Usage  
 
 To use this project, follow these steps:
-1. Clone this repository to your local machine: `git clone https://github.com/m-nanda/End-to-End-ML.git `
+1. Clone this repository to your local machine:
+    ```bash
+    git clone https://github.com/Utkarsh3725/End-to-End-Ml-Model-.git
+    ```
 
 2. Go to the project folder in a terminal or command prompt
     ```bash
-    cd End-to-End-ML
+    cd End-to-End-Ml-Model-
     ```
 
 3. Create a virtual environment  
@@ -156,14 +159,26 @@ To use this project, follow these steps:
     python -m venv .venv
     ```
 
-4. Activate virtual environment (windows)
+4. Activate the virtual environment using the command for your shell.
+
+    macOS/Linux (bash or zsh):
     ```bash
-    .venv/Scripts/activate
+    source .venv/bin/activate
+    ```
+
+    Windows PowerShell:
+    ```powershell
+    .\.venv\Scripts\Activate.ps1
+    ```
+
+    Windows Command Prompt:
+    ```bat
+    .venv\Scripts\activate.bat
     ```
 
 5. Install the necessary dependencies 
     ```bash
-    pip install -r requirements.txt
+    python -m pip install -r requirements.txt
     ```  
 6. Create `.env` file to store credentials which at least contain:
     - `DATA_SOURCE` $ \rarr $  link to access Iris Dataset 
