@@ -3,11 +3,13 @@ import joblib, warnings, os, requests
 import pandas as pd
 import numpy as np
 from typing import Dict, Any, Union
+from dotenv import load_dotenv
 warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
 
 # load credential
+load_dotenv()
 VALIDATE_TOKEN = os.getenv('VALIDATE_TOKEN')
 
 @app.route('/v1/predict/realtime/<sepal_length>/<sepal_width>/<petal_length>/<petal_width>', methods=["POST"])
