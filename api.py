@@ -34,12 +34,26 @@ def realtime(sepal_length: float, sepal_width: float, petal_length: float, petal
     except joblib.exc.JoblibException as e:
       return jsonify({'Error': f'Error loading pipeline: {e}'}), 500
 
+    # Parse and reject invalid numeric input before passing it to the model.
+    try:
+      feature_values = [
+        float(sepal_length),
+        float(sepal_width),
+        float(petal_length),
+        float(petal_width),
+      ]
+    except (TypeError, ValueError):
+      return jsonify({'message': 'All flower measurements must be numbers'}), 400
+
+    if not np.isfinite(feature_values).all():
+      return jsonify({'message': 'Flower measurements must be finite numbers'}), 400
+
     # processing input data
     input_dict = {
-      'sepal_length': [float(sepal_length)], 
-      'sepal_width': [float(sepal_width)], 
-      'petal_length': [float(petal_length)], 
-      'petal_width': [float(petal_width)]
+      'sepal_length': [feature_values[0]],
+      'sepal_width': [feature_values[1]],
+      'petal_length': [feature_values[2]],
+      'petal_width': [feature_values[3]],
     }
     data_input = pd.DataFrame(input_dict)
     scaled_data_input = preprocessing(pipeline, data_input) #pipeline['scaler'].transform(data_input)
