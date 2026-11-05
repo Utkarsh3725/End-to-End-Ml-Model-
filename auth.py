@@ -13,9 +13,16 @@ ALGORITHM = os.getenv('ALGORITHM')
 @app.route('/auth/login', methods=['POST'])
 def login() -> dict:
     """Endpoint for user authentication."""
-    username = request.json.get('username')
-    password = request.json.get('password')
-    USERS_DB = json.loads(USERS)
+    credentials = request.get_json(silent=True)
+    if not isinstance(credentials, dict):
+        return jsonify({'message': 'A JSON object with username and password is required'}), 400
+
+    username = credentials.get('username')
+    password = credentials.get('password')
+    if not isinstance(username, str) or not username or not isinstance(password, str) or not password:
+        return jsonify({'message': 'Username and password must be non-empty strings'}), 400
+
+    USERS_DB = json.loads(USERS or '{}')
     
     if username in USERS_DB and USERS_DB[username]==password:
         access_token = generate_access_token(username)
