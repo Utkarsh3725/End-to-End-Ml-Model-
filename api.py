@@ -12,17 +12,39 @@ app = Flask(__name__)
 load_dotenv()
 VALIDATE_TOKEN = os.getenv('VALIDATE_TOKEN')
 
+
+def _is_access_token_valid() -> bool | None:
+  """Validate the caller's token; return None when the auth service is unavailable."""
+  access_token = request.headers.get('Authorization') or request.headers.get('Auth')
+  if not access_token:
+    return False
+  if access_token.lower().startswith('bearer '):
+    access_token = access_token[7:].strip()
+  if not access_token:
+    return False
+  if not VALIDATE_TOKEN:
+    app.logger.error('VALIDATE_TOKEN is not configured')
+    return None
+
+  try:
+    response = requests.get(f"{VALIDATE_TOKEN}{access_token}", timeout=5)
+    if response.status_code != 200:
+      return False
+    validation = response.json()
+  except (requests.RequestException, ValueError):
+    app.logger.exception('Could not validate access token')
+    return None
+
+  return isinstance(validation, dict) and validation.get('token_valid') is True
+
 @app.route('/v1/predict/realtime/<sepal_length>/<sepal_width>/<petal_length>/<petal_width>', methods=["POST"])
 def realtime(sepal_length: float, sepal_width: float, petal_length: float, petal_width: float) -> Dict[str, Any]:
   """
   Predict irish with custom input data
   """
-  # get token
-  access_token = request.headers.get('Authorization') or request.headers.get('Auth')
-  
-  # validate access token
-  response_validation = requests.get(f"{VALIDATE_TOKEN}{access_token}")
-  token_is_valid = response_validation.json().get("token_valid")
+  token_is_valid = _is_access_token_valid()
+  if token_is_valid is None:
+    return jsonify({'message': 'Authentication service unavailable'}), 503
 
   if token_is_valid:
 
@@ -58,12 +80,9 @@ def predict_by_index(index: int) -> Dict[str, Any]:
   Gets existing data from a remote server (the UCI Machine Learning Repository)
   and loads it into a pandas DataFrame.
   """
-  # get token
-  access_token = request.headers.get('Authorization') or request.headers.get('Auth')
-  
-  # validate access token
-  response_validation = requests.get(f"{VALIDATE_TOKEN}{access_token}")
-  token_is_valid = response_validation.json().get("token_valid")
+  token_is_valid = _is_access_token_valid()
+  if token_is_valid is None:
+    return jsonify({'message': 'Authentication service unavailable'}), 503
 
   if token_is_valid:
     # load saved pipeline object
